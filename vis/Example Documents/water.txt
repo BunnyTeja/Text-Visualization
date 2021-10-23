@@ -1,0 +1,108 @@
+Lead and Copper Rule Revision Summary
+Below is a summary of recent lead and copper regulatory changes in Michigan. Please note that
+this summary is not comprehensive. Lead and copper requirements are complex, and additional
+information and training is being developed to help water supplies comply with the new
+requirements.
+
+Lead Action Level
+
+The lead action level of 15 parts per billion (ppb) remains in effect through December 31,
+2024. The new lead action level of 12 ppb will take effect January 1, 2025.
+
+
+Lead and copper 90th percentiles are now calculated using highest lead and highest
+copper results from each site.
+
+Lead and Copper Tap Sampling
+
+Lead and copper tap sampling pools must be reviewed, updated as necessary, and
+submitted to the Michigan Department of Environment, Great Lakes, and Energy (EGLE)
+by January 1, 2020.
+
+
+Tier 1 and Tier 2 sample site criteria no longer include sites with copper pipes soldered
+with lead and installed after 1982. Tier 3 criteria have been modified to include sites with
+copper pipes soldered with lead and installed before July 1988.
+
+
+Systematic flushing of a sampling site and/or aerator removal or cleaning is prohibited
+immediately before compliance sampling is conducted.
+
+
+A second sample, in addition to the first draw, will be required at sites served by a lead
+service line (details and instructions will be provided once developed). The highest lead
+result and the highest copper result will be used to calculate the90th percentile.
+
+
+A supply with optimal corrosion control treatment (OCCT) cannot reduce to three year
+lead and copper tap monitoring unless it meets water quality parameter ranges and
+either of the following apply:
+
+
+The water supply has no lead service lines OR
+The water supply has three annual rounds of sampling with 90th percentiles less
+than or equal to 5 ppb for lead and 650 ppb for copper.
+
+Distribution System Materials Inventory (DSMI)
+To ensure distribution system components and service lines are properly identified and
+effectively inventoried, the following requirements apply:
+
+A preliminary DSMI, based on available information, must be submitted to EGLE by
+January 1, 2020.
+
+
+A final DSMI must be submitted to EGLE by January 1, 2025, with a comprehensive
+updated inventory due every five years thereafter.
+
+Supplies with lead service lines must report to EGLE annually on the status of lead
+service line replacement efforts.
+
+Supplies must notify residents served by lead service lines within 30 days of determining
+the service line content.
+
+Lead Service Line Replacement
+The Lead and Copper Rule previously required replacement of lead service lines at a rate of 7
+percent per year, only when a water supply continued to exceed the lead action level after
+installing corrosion control treatment. While this requirement remains in effect, lead service line
+replacement requirements have been expanded to include the following:
+
+Partial lead service line replacement is no longer allowed except in the case of an
+emergency repair.
+
+Water supplies with lead service lines, regardless of lead action level values, must
+replace all lead service lines at an average rate of 5 percent per year, not to exceed 20
+years, or in accordance with an alternate schedule incorporated into an asset
+management plan and approved by EGLE.
+
+The full lead service line must be replaced at water supply expense, regardless of
+ownership.
+
+A new service line definition was added, and the lead service line definition was
+updated.
+
+Water Quality Parameter (WQP) Sampling
+WQP sampling is required for all supplies with OCCT, including small and medium supplies,
+and all supplies exceeding an action level.
+
+WQPs have been expanded to include chloride and sulfate.
+
+Rules have been clarified to require establishment of WQP ranges in the distribution
+system.
+
+WQP monitoring can no longer be reduced to 3-year monitoring.
+Continuity of Sources and Treatment
+Clarification that supplies purchasing water from a supply with OCCT must also maintain
+OCCT.
+Clarification that EGLE may require new or updated corrosion control studies when a
+supply changes source or treatment, or at any other time as appropriate.
+Enhanced Transparency
+The consumer notice of results (the results information provided to residents of sampled
+sites) must now include copper.
+Additional content and delivery requirements for lead public education following a lead
+action level exceedance have been added.
+Additional Consumer Confidence Report content for lead and copper reporting and lead
+service line reporting have been added.
+A statewide advisory council will be created to assist with development of public
+awareness campaign materials.
+Supplies serving 50,000 people or more must establish a community advisory council
+tassist with development of public awareness campaign materials.
