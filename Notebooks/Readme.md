@@ -11,11 +11,7 @@ NOTE : BEFORE RUNNING THIS CODE, PLEASE FOLLOW THE INSTRUCTIONS OF THE README PR
 
 --- RUNNING THE CODE ---
 1. Download all requirements as mentioned in "requirements.txt" in Text-Visualization (pip install -r requirements.txt)
-2. Run v4-LSTM-Testing (py v4-LSTM-Testing.py)
+2. Run hier_transformer_testing.ipynb
 
 --- EXPERIMENTATION WITH THE CODE ---
-1. 'model_weights' contains different versions of heirarchical transformer model. Each can be loaded as : model.load_weights(r'./model_weights/bert-lstm/v7.h5')  [ line 139 in v4-LSTM-Testing.py]
-
---- JUPYTER NOTEBOOKS ---
-1. v4-LSTM : Notebook used for creating the training data and model.
-2. v4-LSTM-Testing : Notebook for only testing the Hierarchical transformer model
+1. 'model_weights' contains different versions of heirarchical transformer model. Each can be loaded as : model.load_weights(r'./model_weights/bert-lstm/v7.h5')  [ line 147 in hier_transformer.py]
