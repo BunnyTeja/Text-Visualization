@@ -9,6 +9,8 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import NearestNeighbors
 import sklearn
 
+from .hier_transformer import *
+from .JEL_Mapper import *
 
 import spacy
 from spacy.symbols import PUNCT, SYM, NUM, VERB
@@ -101,12 +103,16 @@ def tag_visible(element):
 
 
 # Fetch an article given a URL (Name is misleading (get_cnn))
-def get_cnn(url):
-  x = requests.get(url)
-  soup = BeautifulSoup(x.content, 'html.parser')
-  text = soup.findAll(text=True)
-  visible_texts = filter(tag_visible, text)  
-  return u" ".join(t.strip() for t in visible_texts)
+def get_data_url(url):
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0'}
+    x = requests.get(url, headers = headers)
+    if x.status_code != 200:
+        return "Access Denied, Status Code : {}".format(x.status_code)
+    soup = BeautifulSoup(x.content, 'html.parser')
+    text = soup.findAll(text=True)
+    visible_texts = filter(tag_visible, text)  
+    return u" ".join(t.strip() for t in visible_texts)
+
   
 
 # Pre-process text to pass to the embeddings generator
@@ -140,13 +146,13 @@ def get_rfp_docs(op = 0):
     new_docs = []
     for doc in docs:
         tokens = doc.split(' ')
-        for i in range(len(tokens)//320):
+        for i in range(len(tokens)//320):    #why 320??
             temp = ' '.join(tokens[i*320:(i+1)*320])
             new_docs.append(temp)
     random.seed(42)
     random.shuffle(new_docs)
     if op == 1:
-        return new_docs[:2373]
+        return new_docs[:2373]    #2373 is number of docs of each type in 20newsgroups
     else:
         return docs
 
@@ -172,80 +178,80 @@ def generate_embeddings(name, category = []):
     return verbs
 
 # Train document classifier
-def train_classifier():
-    num_each = 2373
+# def train_classifier():
+#     num_each = 2373
     
-    train_politics = fetch_20newsgroups(subset='train', categories = politics, shuffle=True, random_state=42)
-    data_politics = train_politics.data[:num_each]
-    target_politics = [3 for i in range(num_each)]
+#     train_politics = fetch_20newsgroups(subset='train', categories = politics, shuffle=True, random_state=42)
+#     data_politics = train_politics.data[:num_each]
+#     target_politics = [3 for i in range(num_each)]
 
-    # print(len(data_politics))
+#     # print(len(data_politics))
     
-    train_computers = fetch_20newsgroups(subset='train', categories = computers, shuffle=True, random_state=42)
-    data_computers = train_computers.data[:num_each]
-    target_computers = [0 for i in range(num_each)]
+#     train_computers = fetch_20newsgroups(subset='train', categories = computers, shuffle=True, random_state=42)
+#     data_computers = train_computers.data[:num_each]
+#     target_computers = [0 for i in range(num_each)]
     
-    # print(len(data_computers))
+#     # print(len(data_computers))
     
-    train_science = fetch_20newsgroups(subset='train', categories = science, shuffle=True, random_state=42)
-    data_science = train_science.data[:num_each]
-    target_science = [2 for i in range(num_each)]
+#     train_science = fetch_20newsgroups(subset='train', categories = science, shuffle=True, random_state=42)
+#     data_science = train_science.data[:num_each]
+#     target_science = [2 for i in range(num_each)]
     
-    # print(len(data_science))
+#     # print(len(data_science))
     
-    train_recr = fetch_20newsgroups(subset='train', categories = recr, shuffle=True, random_state=42)
-    data_recr = train_recr.data[:num_each]
-    target_recr = [1 for i in range(num_each)]
+#     train_recr = fetch_20newsgroups(subset='train', categories = recr, shuffle=True, random_state=42)
+#     data_recr = train_recr.data[:num_each]
+#     target_recr = [1 for i in range(num_each)]
     
-    # print(len(data_recr))
+#     # print(len(data_recr))
     
-    data = data_politics + data_computers + data_science + data_recr
-    target = target_politics + target_computers + target_science + target_recr
+#     data = data_politics + data_computers + data_science + data_recr
+#     target = target_politics + target_computers + target_science + target_recr
 
-    data.extend(get_rfp_docs(1))
-    target.extend([4 for i in range(len(get_rfp_docs(1)))])
-    random.seed(42)
-    c = list(zip(data, target))
-    random.shuffle(c)
-    data, target = zip(*c)
-    target = np.array(target)
-    count_vect = CountVectorizer(stop_words = 'english')
-    X_train_counts = count_vect.fit_transform(data)
-    tf_transformer = TfidfTransformer(use_idf=False).fit(X_train_counts)
-    X_train_tf = tf_transformer.transform(X_train_counts)
-    X_train_tf.shape
-    tfidf_transformer = TfidfTransformer()
-    X_train_tfidf = tfidf_transformer.fit_transform(X_train_counts)
-    r = (len(target)*4)//5
-    clf = MultinomialNB().fit(X_train_tfidf[:r], target[:r])
-    return (count_vect, tfidf_transformer, clf)
+#     data.extend(get_rfp_docs(1))
+#     target.extend([4 for i in range(len(get_rfp_docs(1)))])
+#     random.seed(42)
+#     c = list(zip(data, target))
+#     random.shuffle(c)
+#     data, target = zip(*c)
+#     target = np.array(target)
+#     count_vect = CountVectorizer(stop_words = 'english')
+#     X_train_counts = count_vect.fit_transform(data)
+#     tf_transformer = TfidfTransformer(use_idf=False).fit(X_train_counts)   #why have we created this tdidf transformer w/o using idf
+#     X_train_tf = tf_transformer.transform(X_train_counts)
+#     X_train_tf.shape
+#     tfidf_transformer = TfidfTransformer()
+#     X_train_tfidf = tfidf_transformer.fit_transform(X_train_counts)
+#     r = (len(target)*4)//5    #training on 80perc of data
+#     clf = MultinomialNB().fit(X_train_tfidf[:r], target[:r])
+#     return (count_vect, tfidf_transformer, clf)
 
-(count, tfidf, clf) = train_classifier()
+# (count, tfidf, clf) = train_classifier()
 
 
-# Classify document theme into 1 of 5 categories
-def classify(text):
-    twenty_train = fetch_20newsgroups(subset='train', shuffle=True, random_state=42)
-    docs_new = [text]
-    X_new_counts = count.transform(docs_new)
-    X_new_tfidf = tfidf.transform(X_new_counts)
-    predicted = clf.predict(X_new_tfidf)
-    prob = clf.predict_proba(X_new_tfidf)
-    # print(prob)
-    if np.max(prob) < 0.4:
-        predicted[0] = 5
-    if predicted[0] == 0:
-        return prob, 'Computers'
-    if predicted[0] == 1:
-        return prob, 'Recreational'
-    if predicted[0] == 2:
-        return prob, 'Science'
-    if predicted[0] == 3:
-        return prob, 'Politics'
-    if predicted[0] == 4:
-        return prob, 'RFP'
-    else:
-        return prob, 'Other'
+# # Classify document theme into 1 of 5 categories
+# def classify(text):
+#     twenty_train = fetch_20newsgroups(subset='train', shuffle=True, random_state=42)
+#     docs_new = [text]
+#     X_new_counts = count.transform(docs_new)
+#     X_new_tfidf = tfidf.transform(X_new_counts)
+#     predicted = clf.predict(X_new_tfidf)
+#     prob = clf.predict_proba(X_new_tfidf)
+#     # print(prob)
+#     if np.max(prob) < 0.4:   #other
+#         predicted[0] = 5
+#     if predicted[0] == 0:
+#         return prob, 'Computers'
+#     if predicted[0] == 1:
+#         return prob, 'Recreational'
+#     if predicted[0] == 2:
+#         return prob, 'Science'
+#     if predicted[0] == 3:
+#         return prob, 'Politics'
+#     if predicted[0] == 4:
+#         return prob, 'RFP'
+#     else:
+#         return prob, 'Other'
 
 
 # Filter the verbs out of a set of words
@@ -255,7 +261,7 @@ def verb_filter(words, verbs_set):
         if word in verbs_set:
             ans.add(word)
         else:
-            doc = nlp2(word + ' him')[0]
+            doc = nlp2(word + ' him')[0]   #using nlp2 because nlp didnt classify this word as a verb?
             if doc.pos == VERB:
                 verbs_set.add(str(doc))
                 ans.add(str(doc))
@@ -265,7 +271,7 @@ def verb_filter(words, verbs_set):
 # Compute verb vocabulary for all categories
 def compute_verb_vocab():
     all_verbs = set()
-    politics_verbs = (generate_embeddings('politics', politics)).intersection(glove)
+    politics_verbs = (generate_embeddings('politics', politics)).intersection(glove)   #glove???
     save_data(politics_verbs, path+'/vis/Data/politics_verbs.pickle')
     all_verbs = all_verbs.union(politics_verbs)
     
@@ -414,3 +420,8 @@ def get_index_to_word():
         glove_map[i] = verb
         i += 1
     return politics_map, computers_map, science_map, recr_map, rfp_map, glove_map
+
+# Domain CLassification Model
+ht_model = config_model(path)
+def predict_domain(text):
+    return check_hier_text(ht_model, text)

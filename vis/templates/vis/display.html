@@ -371,50 +371,95 @@
 			    	<h6>Name: {{person}}</h6>
 			    </div>
 			</div>
-			<div class="row justify-content-center"><h5>Summary of top ACM Classification Codes</h5></div>
-			<div class="row justify-content-center">
-				<table class="table table-borderless">
-					<tbody>
-						  <tr>
-							<th>Code</th>
-							<th>Term</th>
-							<th>Mentions</th>
-						  </tr>
-						  {%for code in codes%}
-						  <tr>
-						  	<td>{{code.0}}</td>
-						  	<td>{{code.1}}</td>
-						  	<td>{{code.2}}</td>
-						  </tr>
-						  {%endfor%}
-					</tbody>
-				</table>
-			</div>
-			<div class="row justify-content-center"><h5>Areas of Interest</h5></div>
-			<div class="row justify-content-center">
-	        	<img src="data:image/png;base64,{{time_series}}" class="img-fluid" style="width:600px;height:400px;" alt="Time Series">
-	        </div>
-	        <div class="row justify-content-center">
-	        	<img src="data:image/png;base64,{{pie_share}}" class="img-fluid" style="width:700px;height:400px;" alt="Pie Share">
-	        </div>
-	        <div class="row justify-content-center"><h5>Recent Publications</h5></div>
-	        <table class="table table-borderless">
-				<tbody>
-					  <tr>
-						<th>Year</th>
-						<th>Title</th>
-					  </tr>
-					  {%for pub in pubs%}
-					  <tr>
-					  	<td>{{pub.0}}</td>
-					  	<td><a href = "{{pub.2}}">{{pub.1}}</a></td>
-					  </tr>
-					  {%endfor%}
+			<ul class="nav nav-tabs" role="tablist">
+				<li class="nav-item">
+			      <a class="nav-link active" data-toggle="tab" href="#acm">ACM</a>
+			    </li>
+				<li class="nav-item">
+			      <a class="nav-link" data-toggle="tab" href="#jel">JEL</a>
+			    </li>
+			</ul>
+				
+			<div class="tab-content">
+				<div id="acm" class="container tab-pane active"><br>
+					<div class="row justify-content-center">
+						<table class="table table-borderless">
+							<tbody>
+									<tr>
+									<th>Code</th>
+									<th>Term</th>
+									<th>Mentions</th>
+									</tr>
+									{%for code in codes%}
+									<tr>
+										<td>{{code.0}}</td>
+										<td>{{code.1}}</td>
+										<td>{{code.2}}</td>
+									</tr>
+									{%endfor%}
+							</tbody>
+						</table>
+					</div>
 					
-				</tbody>
-			</table>
+					<div class="row justify-content-center"><h5>Areas of Interest</h5></div>
+					<div class="row justify-content-center">
+						<img src="data:image/png;base64,{{time_series}}" class="img-fluid" style="width:600px;height:400px;" alt="Time Series">
+					</div>
+					<div class="row justify-content-center">
+						<img src="data:image/png;base64,{{pie_share}}" class="img-fluid" style="width:700px;height:400px;" alt="Pie Share">
+					</div>
+				</div>
+				<div id="jel" class="container tab-pane fade"><br>
+					<div class="row justify-content-center"><h5>Summary of top JEL Classification Codes</h5></div>
+					<div class="row justify-content-center">
+						<table class="table table-borderless">
+							<tbody>
+								<tr>
+								<th>Code</th>
+								<th>Term</th>
+								<th>Mentions</th>
+								</tr>
+								{%for code in jel_codes%}
+								<tr>
+								<td>{{code.0}}</td>
+								<td>{{code.1}}</td>
+								<td>{{code.2}}</td>
+								</tr>
+								{%endfor%}
+							</tbody>
+						</table>
+					</div>
+					<div class="row justify-content-center"><h5>Areas of Interest</h5></div>
+					<div class="row justify-content-center">
+						<img src="data:image/png;base64,{{jel_time_series}}" class="img-fluid" style="width:700px;height:400px;" alt="Time Series">
+						<br>
+					</div>
+					<div class="row justify-content-center">
+						<img src="data:image/png;base64,{{jel_pie_share}}" class="img-fluid" style="width:700px;height:400px;" alt="Pie Share">
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
+			
+	<br>
+	<div class="row justify-content-center"><h5>Recent Publications</h5></div>
+		<table class="table table-borderless">
+			<tbody>
+				<tr>
+					<th>Year</th>
+					<th>Title</th>
+				</tr>
+				{%for pub in pubs%}
+				<tr>
+					<td>{{pub.0}}</td>
+					<td><a href = "{{pub.2}}">{{pub.1}}</a></td>
+				</tr>
+				{%endfor%}
+			</tbody>
+		</table>
+	</div>
+</div>
 	{%endif%}
 	<div class="container" id = "pprint">
 		<div class="row justify-content-center"><h2>Full Text&nbsp;</h2><button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#content4">Toggle</button></div><br>

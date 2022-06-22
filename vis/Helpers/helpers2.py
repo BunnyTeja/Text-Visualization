@@ -29,7 +29,7 @@ from spacy.symbols import nsubj, VERB, pobj, dobj, amod, NOUN, ADJ, PRON, PROPN,
 from spacy.lang.en.stop_words import STOP_WORDS
 nlp = spacy.load('en_core_web_lg')
 
-# Calculate Levenshtein distance
+# Calculate Levenshtein distance (minimum edit distance)
 from fuzzywuzzy import fuzz
 
 # Abbreviation to Meaning map
@@ -183,7 +183,7 @@ def get_codes_class(text, term_to_code, code_to_term, triee, to_print = 0):
             for j, el in enumerate(text_temp_):
                 term = ' '.join(el)
                 dist, nearest = find_(triee, term)
-                similarity = fuzz.ratio(nearest.strip(), term.strip())
+                similarity = fuzz.ratio(nearest.strip(), term.strip())  #min edit distance
 
                 # Consider terms if similarity > 85 in the trie
                 if similarity >= 85:
@@ -191,7 +191,7 @@ def get_codes_class(text, term_to_code, code_to_term, triee, to_print = 0):
                     term = nearest
                     if term != 'general' and term != '' and term != 'miscellaneous':
                         check = False
-                        for k in range(len(el)):
+                        for k in range(len(el)):   #len(el) : n of ngram
                             if done.get(j+k, -1) == -1:
                                 check = True
                                 break
@@ -203,33 +203,36 @@ def get_codes_class(text, term_to_code, code_to_term, triee, to_print = 0):
                             ans[term] = ans.get(term, 0)+1
         
         # Rest of the code decides what to do in case a term belongs to 2 codes
-        final = {}
-        codes = {}
+
+        final = {}  #final code for a term if multiple codes present  (term, code) : count
+        codes = {}  #count of a code
+
         for key in list(ans.keys()):
-            if len(term_to_code[key]) == 1:
+            if len(term_to_code[key]) == 1:  #if only one code for term
                 final[(key, list(term_to_code[key])[0])] = ans[key]
                 s = list(term_to_code[key])[0]
                 codes[s] = codes.get(s, 0)+1
-                if s.count('.') >= 1:
-                    t = s[:s.find('.')]
-                    codes[t] = codes.get(t, 0)+1
+                if s.count('.') >= 1:   #eg B.4.5
+                    t = s[:s.find('.')]  #get only the alphabet in code
+                    codes[t] = codes.get(t, 0)+1  # add to the count of B
                 if s.count('.') >= 2:
                     x = [m.start() for m in re.finditer('\.', s)]
                     t = s[:x[-1]]
-                    codes[t] = codes.get(t, 0)+1
+                    codes[t] = codes.get(t, 0)+1 # add to the count of B.4
+
         for key in list(ans.keys()):
             if len(term_to_code[key]) == 1:
                 continue
             lengths = []
-            for el in term_to_code[key]:
+            for el in term_to_code[key]:   # iterating over all possible codes for the term
                 lengths.append(codes.get(el, 0))
             lengths.sort()
-            if lengths[-1] != lengths[-2]:
+            if lengths[-1] != lengths[-2]:    ## eg : count of B.4.5 is more than others
                 for el in term_to_code[key]:
                     if codes.get(el, 0) == lengths[-1]:
                         final[(key, el)] = ans[key]
                         break
-            else:
+            else:   # count of B.4.5 is the same as C.3.2, we count number of codes of type B.4 and C.3
                 keys = []
                 for el in term_to_code[key]:
                     if el.count('.') >= 1:
@@ -246,7 +249,7 @@ def get_codes_class(text, term_to_code, code_to_term, triee, to_print = 0):
                         if codes.get(el, 0) == lengths[-1]:
                             final[(key, list(term_to_code[key])[i])] = ans[key]
                             break
-                else:
+                else:  # count of B.4 is the same as C.3, we count number of codes of B and C
                     temp = []
                     for el in keys:
                         if el.count('.') >= 1:
@@ -264,8 +267,9 @@ def get_codes_class(text, term_to_code, code_to_term, triee, to_print = 0):
                             if codes.get(el, 0) == lengths[-1]:
                                 final[(key, list(term_to_code[key])[i])] = ans[key]
                                 break
-                    else:
+                    else:  # if count of B and C also same, arbitrarily assign last code in list of codes
                         final[(key, list(term_to_code[key])[-1])] = ans[key]
+
         codes = {}
         title = {}
         for key in list(final.keys()):
@@ -331,9 +335,11 @@ def vis(model, text):
     # A map from ACM Classification Terms to their corresponding codes
     term_to_code = pickle.load(open(path+'/vis/Data/term_to_code.pickle', 'rb'))
 
+    jel_code_to_term, jel_term_to_code = jel_load_data(path)
+
     # Convert the map term_to_code to a trie
     trie = get_trie(term_to_code)
-
+    jel_trie = get_trie(jel_term_to_code)
     # A map to pass on to the HTML page with information to display
     summary = {}
 
@@ -341,7 +347,7 @@ def vis(model, text):
     ents = set()
     
 #     Map from entity name to its type
-    types = {}
+    types = {}    #type eg : ORG, GPE(geopolitical entity) etc
     
 #     Used for coreference resolution (Same entity reffered by different names. eg. -> John Daggett, Daggett)
     parent = {}
@@ -350,8 +356,8 @@ def vis(model, text):
     occur = {}
     
     # Get Classification codes for the text
-    codes = get_codes_class(text, term_to_code, code_to_term, trie)
-
+    codes = get_codes_class(text, term_to_code, code_to_term, trie)  #codes[0] : Letter, codes[1] : map from code to freq
+    jel_codes = get_codes_class_jel(text, jel_term_to_code, jel_code_to_term, jel_trie)
     # Use Spacy
     doc = nlp(text)
 
@@ -372,7 +378,7 @@ def vis(model, text):
             ents.add(str(ent).strip())
             parent[str(ent).strip()] = str(ent).strip()
             if str(ent).strip() not in types.keys():
-                types[str(ent).strip()] = ent.label_
+                types[str(ent).strip()] = ent.label_     
 
 
     ents = list(ents)
@@ -403,7 +409,7 @@ def vis(model, text):
     for key in list(parent.keys()):
         final_entities.add(parent[key])
 
-    # Final set of merged entities is stoed in final_entities
+    # Final set of merged entities is stored in final_entities
 
     # A map from entity to verbs (actions on) and their frequencies
     actions_on = {}
@@ -426,7 +432,7 @@ def vis(model, text):
     # process direct entity mentions
     for ent in doc.ents:
         if ent.label_ not in nodo:
-        
+            #all words(not verbs) associated with an entity
             token_list = [token for token in ent]
             begin = token_list[0].i
             end = token_list[-1].i
@@ -441,8 +447,9 @@ def vis(model, text):
             # Maintain the occurence of the entity
             occur[parent[str(ent).strip()]] = occur.get(parent[str(ent).strip()], 0)+1
             # print(ent, parent[str(ent)])
+
             for token in ent:
-                
+                # sentences associated with entites
                 if parent[str(ent).strip()] not in ent_to_sentence:
                     ent_to_sentence[parent[str(ent).strip()]] = set()
                 ent_to_sentence[parent[str(ent).strip()]].add(sents[token_sent[token.i]])
@@ -451,6 +458,7 @@ def vis(model, text):
                     sentence_map[token_sent[int(token.i)]] = set()
                 sentence_map[token_sent[int(token.i)]].add(parent[str(ent).strip()])
                 
+                #actions on and actions by verbs on an entity
                 if token.head.pos == VERB:
                     if token.dep != nsubj:
                         if parent[str(ent).strip()] not in actions_on:
@@ -539,7 +547,7 @@ def vis(model, text):
 
     
     result = {}
-    probs, summary['text_type'] = classify(text) # Domain classification of text
+    probs, summary['text_type'] = predict_domain(text) # Domain classification of text
     summary['related'] = related # Related entities list
     summary['pprint'] = pretty_print_long(text) # Full text section of HTML page
     summary['words'] = len([str(token) for token in doc if str(token).lower() not in STOP_WORDS and token.pos != PUNCT]) # Total number of words excluding stop words
@@ -552,11 +560,20 @@ def vis(model, text):
     except:
         summary['topic'] = ''
     try:
+        summary['jel_topic'] = capital(jel_code_to_term[jel_codes[0]]) + ' (' + jel_codes[0] + ')' # Get the main topic from the Classification Codes
+    except:
+        summary['jel_topic'] = ''
+    try:
         summary['codes'] = codes[1] # Get a map of top 10 codes
     except:
         summary['codes'] = []
+    try:
+        summary['jel_codes'] = jel_codes[1] # Get a map of top 10 codes
+    except:
+        summary['jel_codes'] = []
 
-    summary['codes'] = [[code, capital(code_to_term[code]), summary['codes'][code]] for code in list(summary['codes'].keys())]
+    summary['codes'] = [[code, capital(code_to_term[code]), summary['codes'][code]] for code in list(summary['codes'].keys())] #LIST OF (CODE, TERM, FREQ) FOR TOP 10 CODES
+    summary['jel_codes'] = [[code, capital(jel_code_to_term[code]), summary['jel_codes'][code]] for code in list(summary['jel_codes'].keys())]
     summary['agency'] = agency # Funding agency, if RFP
     
     # The most important person by number of occurences
@@ -569,9 +586,9 @@ def vis(model, text):
     # Boolean variables
     summary['is_person'] = 0
     summary['is_rfp'] = 0
-    probs = probs[0]
-    if agency == '':
-        probs[4] = 0
+    #probs = probs[0]
+    #if agency == '':
+        #probs[4] = 0
     person_pos = 0
     person_mentions = 0
     imp_persons = []
@@ -586,37 +603,47 @@ def vis(model, text):
     pconf = 0
     if person_pos <=5:
         pconf = person_mentions/np.sum(np.array(imp_persons)) * (6-person_pos)/5
-    probs = list(probs)
-    probs.append(pconf)
-    predicted = -1
-    max_prob = 0
-    for i in range(len(probs)):
-        if probs[i]>max_prob:
-            max_prob = probs[i]
-            predicted = i
+    # probs = list(probs)
+    # probs.append(pconf)
+    # predicted = -1
+    # max_prob = 0
+    # for i in range(len(probs)):
+    #     if probs[i]>max_prob:
+    #         max_prob = probs[i]
+    #         predicted = i
     # print(max_prob, predicted)
-    if max_prob < 0.4:
-        predicted = 6
-    if predicted == 0:
-        summary['text_type'] = 'Computers'
-    elif predicted == 1:
-        summary['text_type'] = 'Recreational'
-    elif predicted == 2:
-        summary['text_type'] = 'Science'
-    elif predicted == 3:
-        summary['text_type'] = 'Politics'
-    elif predicted == 4:
-        summary['text_type'] = 'RFP'
-        summary['is_rfp'] = 1
-    elif predicted == 5:
+    max_prob = probs
+    if pconf > probs:
         summary['text_type'] = 'Person'
         summary['is_person'] = 1
-    else:
+        max_prob = pconf
+    if max_prob < 0.4:
         summary['text_type'] = 'Other'
+    
+    if summary['text_type'] == 'RFP':
+        summary['is_rfp'] = 1
+    # if predicted == 0:
+    #     summary['text_type'] = 'Computers'
+    # elif predicted == 1:
+    #     summary['text_type'] = 'Recreational'
+    # elif predicted == 2:
+    #     summary['text_type'] = 'Science'
+    # elif predicted == 3:
+    #     summary['text_type'] = 'Politics'
+    # elif predicted == 4:
+    #     summary['text_type'] = 'RFP'
+    #     summary['is_rfp'] = 1
+    # elif predicted == 5:
+    #     summary['text_type'] = 'Person'
+    #     summary['is_person'] = 1
+    # else:
+        # summary['text_type'] = 'Other'
     
     summary['person'] = person
     summary['time_series'] = ''
     summary['pie_share'] = ''
+    summary['jel_time_series'] = ''
+    summary['jel_pie_share'] = ''
     summary['pubs'] = []
 
     # return result, summary
@@ -631,6 +658,7 @@ def vis(model, text):
         if author_id != '':
             summary['text_type'] = 'Person ('+person+')'
             info = []
+            jel_info = []
             all_pubs = []
             
             # Get all publication codes from titles of publications of the author
@@ -641,11 +669,17 @@ def vis(model, text):
                 pub_link = 'https://scholar.google.com/citations?view_op=view_citation&hl=en&user='+author_id+'&sortby=pubdate&citation_for_view='+pub_id
                 new_text += '\n'+title
                 topic, codes = get_codes_class(title, term_to_code, code_to_term, trie)
-
+                jel_topic, jel_codes = get_codes_class_jel(title, jel_term_to_code, jel_code_to_term, jel_trie)
                 if topic != '':
                     try:
                         yr = list(datefinder.find_dates(year + ' Jan'))[0]
                         info.append([yr, capital(code_to_term[topic]) + ' ('+topic + ')'])
+                    except:
+                        pass
+                if jel_topic != '':
+                    try:
+                        yr = list(datefinder.find_dates(year + ' Jan'))[0]
+                        jel_info.append([yr, capital(jel_code_to_term[jel_topic]) + ' ('+jel_topic + ')'])
                     except:
                         pass
                 all_pubs.append([year, title, pub_link])
@@ -653,15 +687,17 @@ def vis(model, text):
             # Top 10 publications to show
             all_pubs = all_pubs[:10]
             info.reverse()
+            jel_info.reverse()
             codes = {}
-
+            jel_codes = {}
             # Get Classification codes incorporating publications also
             codes = get_codes_class(new_text, term_to_code, code_to_term, trie)
+            jel_codes = get_codes_class_jel(new_text, jel_term_to_code, jel_code_to_term, jel_trie)
+
             summary['codes'] = codes[1]
-
             summary['codes'] = [[code, capital(code_to_term[code]), summary['codes'][code]] for code in list(summary['codes'].keys())]
-            
-
+            summary['jel_codes'] = jel_codes[1]
+            summary['jel_codes'] = [[code, capital(jel_code_to_term[code]), summary['jel_codes'][code]] for code in list(summary['jel_codes'].keys())]
             summary['pubs'] = all_pubs
 
             # Plot Pie Chart
@@ -686,6 +722,31 @@ def vis(model, text):
             my_stringIObytes.seek(0)
             my_base64_jpgData = base64.b64encode(my_stringIObytes.read()).decode('ascii')
             summary['pie_share'] = my_base64_jpgData
+      
+            #JEL PIE CHART
+            fig = plt.figure()
+            plt.title('Pie Share')
+            jel_counter = dict(Counter([el[1] for el in jel_info]))
+            jel_summ = 0
+            for key in jel_counter.keys():
+                jel_summ += jel_counter[key]
+
+            jel_colors = list(iter(cm.rainbow(np.linspace(0, 1, len(jel_counter.keys())))))
+            jel_topics = list(dict(Counter([el[1] for el in jel_info])).keys())
+            jel_topic_to_color = {}
+            for i in range(len(jel_topics)):
+                jel_topic_to_color[jel_topics[i]] = jel_colors[i]
+
+            jel_patches, texts = plt.pie(list(dict(Counter([el[1] for el in jel_info])).values()), colors = colors)
+            jel_texts_show = list(jel_counter.keys())
+            jel_texts_show = [t + ' '+str(np.round(jel_counter[t]*100/jel_summ, 2))+' %' for t in jel_counter]
+            plt.legend(jel_patches, jel_texts_show, loc='center left', bbox_to_anchor=(-1.4, 1.), fontsize=15)
+
+            my_stringIObytes = io.BytesIO()
+            plt.savefig(my_stringIObytes, format='jpg', bbox_inches='tight')
+            my_stringIObytes.seek(0)
+            my_base64_jpgData = base64.b64encode(my_stringIObytes.read()).decode('ascii')
+            summary['jel_pie_share'] = my_base64_jpgData
 
             # Plot Time Series
             plt.figure()
@@ -701,6 +762,22 @@ def vis(model, text):
             my_stringIObytes.seek(0)
             my_base64_jpgData = base64.b64encode(my_stringIObytes.read()).decode('ascii')
             summary['time_series'] = my_base64_jpgData
+
+            # JEL Plot Time Series
+            plt.figure()
+            plt.xlabel('Years')
+            plt.ylabel('Areas')
+            plt.title('Time Series')
+            occurences = dict(Counter([str(el[0])+','+el[1] for el in jel_info]))
+            plt.scatter([el[0] for el in jel_info], [el[1] for el in jel_info], color = [jel_topic_to_color[el[1]] for el in jel_info], label = [occurences[str(el[0])+','+el[1]] for el in jel_info])
+            for i in range(len(jel_info)):
+                plt.annotate(occurences[str(jel_info[i][0])+','+jel_info[i][1]], (jel_info[i][0],jel_info[i][1]), textcoords="offset points", xytext=(0,10), ha='center')
+            my_stringIObytes = io.BytesIO()
+            plt.savefig(my_stringIObytes, format='jpg', bbox_inches='tight')
+            my_stringIObytes.seek(0)
+            my_base64_jpgData = base64.b64encode(my_stringIObytes.read()).decode('ascii')
+            summary['jel_time_series'] = my_base64_jpgData
+
     if summary['is_person'] == 1 and summary['time_series'] == '' and person in sorted_names:
         summary['is_person'] = 0
         summary['text_type'] = 'Person ('+person+')'

@@ -5,17 +5,37 @@
 	<div class="col-md-8 mx-auto">
 	<form method = "POST" action="{% url 'display' %}" id="usrform">
 		{% csrf_token %}
-		<textarea rows="10" cols="100" name='comment' id = 'comment' placeholder="Enter text to visualize..."></textarea>
-		<input type="hidden" name="islink" value= "0" id="islink" />
+		<textarea rows="1" cols="100" name='comment' id = 'comment' placeholder="Enter link..."></textarea>
+		<input type="hidden" name="islink" value= "1" id="islink" />
+		<button type = "SUBMIT" class = "btn btn-success">SUBMIT</button>
+	</form><br><br>
+	<div class="row justify-content-center"><h3>OR, Try Some Suggested URLs</h3></div><br>
+	<form method = "POST" action="{% url 'display' %}" id="usrform">
+		{% csrf_token %}
+		<input type="radio" id="comp" name="fav_language" value="https://www.geeksforgeeks.org/compiler-construction-tools/">
+		<label for="comp">Computer : <a href = "https://www.geeksforgeeks.org/compiler-construction-tools/"> https://www.geeksforgeeks.org/compiler-construction-tools/ </a></label><br>
+		<input type="radio" id="pol" name="fav_language" value="http://lite.cnn.com/en/article/h_f68f79dede493cb0a82201f6ea0ce293">
+		<label for="pol">Politics : <a href = "http://lite.cnn.com/en/article/h_f68f79dede493cb0a82201f6ea0ce293"> http://lite.cnn.com/en/article/h_f68f79dede493cb0a82201f6ea0ce293 </a></label><br>
+		<input type="radio" id="sci" name="fav_language" value="https://vikaspedia.in/education/childrens-corner/science-section/articles-on-science">
+		<label for="pol">Science : <a href = "https://vikaspedia.in/education/childrens-corner/science-section/articles-on-science"> https://vikaspedia.in/education/childrens-corner/science-section/articles-on-science </a></label><br>
+		<input type="radio" id="recr" name="fav_language" value="https://www.nytimes.com/2022/05/23/sports/baseball/roger-angell.html">
+		<label for="pol">Recreation : <a href = "https://www.nytimes.com/2022/05/23/sports/baseball/roger-angell.html"> https://www.nytimes.com/2022/05/23/sports/baseball/roger-angell.html </a></label><br>
+		<input type="radio" id="rfp" name="fav_language" value="https://beta.nsf.gov/funding/opportunities/division-chemistry-disciplinary-research-programs-no-deadline-pilot-che">
+		<label for="pol">RFP : <a href = "https://beta.nsf.gov/funding/opportunities/division-chemistry-disciplinary-research-programs-no-deadline-pilot-che"> https://beta.nsf.gov/funding/opportunities/division-chemistry-disciplinary-research-programs-no-deadline-pilot-che </a></label><br>
+		<input type="radio" id="wat" name="fav_language" value="https://www.epa.gov/dwreginfo/public-water-system-supervision-program-water-supply-guidance-manual">
+		<label for="pol">Water Regulations : <a href = "https://www.epa.gov/dwreginfo/public-water-system-supervision-program-water-supply-guidance-manual"> https://www.epa.gov/dwreginfo/public-water-system-supervision-program-water-supply-guidance-manual </a></label><br>
+		<input type="radio" id="per" name="fav_language" value="https://www.cse.sc.edu/~huhns/">
+		<label for="pol">Person : <a href = "https://www.cse.sc.edu/~huhns/"> https://www.cse.sc.edu/~huhns/ </a></label><br>
+		
 		<button type = "SUBMIT" class = "btn btn-success">SUBMIT</button>
 	</form><br>
 	<div class="row justify-content-center"><h3>OR</h3></div><br>
 	<form method = "POST" action="{% url 'display' %}" id="usrform">
 		{% csrf_token %}
-		<textarea rows="1" cols="100" name='comment' id = 'comment' placeholder="Enter link..."></textarea>
-		<input type="hidden" name="islink" value= "1" id="islink" />
+		<textarea rows="10" cols="100" name='comment' id = 'comment' placeholder="Enter text to visualize..."></textarea>
+		<input type="hidden" name="islink" value= "0" id="islink" />
 		<button type = "SUBMIT" class = "btn btn-success">SUBMIT</button>
-	</form>
+	</form><br>
 	<!-- <div class="row justify-content-center"><h3>OR</h3></div><br>
 	<form method = "POST" action="{% url 'display' %}" id="usrform">
 		{% csrf_token %}

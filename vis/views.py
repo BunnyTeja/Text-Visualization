@@ -49,10 +49,16 @@ def display(request):
 	if(request.method == 'POST'):
 		text = request.POST.get('comment')
 		islink = request.POST.get('islink')
+		isbutton = request.POST.get('fav_language')
 		glove = loadGloveModel(path+'/vis/Data/glove_small.txt')
 		model = init_model(glove)
+
 		if islink == '1':
-			text = get_cnn(text)
+				text = get_data_url(text)
+		else:		
+			if isbutton is not None:
+				text = get_data_url(isbutton)
+				
 		# df = pd.read_csv(path+'/Evaluation Data/profile_links.csv')
 		# links = list(df['Link'])
 		# people = 0
@@ -64,6 +70,7 @@ def display(request):
 		# 		people += 1
 		# print(people, len(links))
 		# text = get_legal_doc(text)
+		#print(text)
 		result, summary = vis(model, text)
 		entities = []
 		context = {}
@@ -93,9 +100,12 @@ def display(request):
 		context['agency'] = summary['agency']
 		context['is_rfp'] = summary['is_rfp']
 		context['time_series'] = summary['time_series']
+		context['jel_time_series'] = summary['jel_time_series']
 		context['pie_share'] = summary['pie_share']
+		context['jel_pie_share'] = summary['jel_pie_share']
 		context['topic'] = summary['topic']
 		context['codes'] = summary['codes']
+		context['jel_codes'] = summary['jel_codes']
 		context['is_person'] = summary['is_person']
 		context['person'] = summary['person']
 		context['pubs'] = summary['pubs']
