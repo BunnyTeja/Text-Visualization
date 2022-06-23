@@ -58,7 +58,11 @@ def display(request):
 		else:		
 			if isbutton is not None:
 				text = get_data_url(isbutton)
-				
+
+		if text.startswith('Access Denied'):
+			con = {}
+			con['text'] = text
+			return render(request, 'vis/alert.html', con)
 		# df = pd.read_csv(path+'/Evaluation Data/profile_links.csv')
 		# links = list(df['Link'])
 		# people = 0
