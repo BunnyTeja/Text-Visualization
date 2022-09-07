@@ -1,4 +1,4 @@
-# URL : https://herokudjangoapp57.herokuapp.com/
+# URL : http://casy.cse.sc.edu/kite
 
 # KITE
 
